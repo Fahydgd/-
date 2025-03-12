@@ -1,11 +1,9 @@
 import logging
 import asyncio
-import time
 import random
+import time
 from aiogram import Bot, Dispatcher, types, F
 from aiogram.filters import Command
-from flask import Flask
-from threading import Thread
 
 # Токен бота и ID канала
 BOT_TOKEN = "7385634728:AAG-twcqVUOFRdqa38G7EAZQlbhN2mO3E8E"  # Замените на свой токен
@@ -17,9 +15,6 @@ logging.basicConfig(level=logging.INFO)
 # Инициализация бота и диспетчера
 bot = Bot(token=BOT_TOKEN)
 dp = Dispatcher()
-
-# Инициализация Flask
-app = Flask(__name__)
 
 # Хранение времени последней отправки сплетни
 user_last_message_time = {}
@@ -88,23 +83,9 @@ async def handle_message(message: types.Message):
             logging.error(f"Ошибка при отправке в канал: {e}")
             await message.answer(get_random_response("error"))
 
-# Функция для запуска Flask-сервиса для пингов
-@app.route('/ping')
-def ping():
-    return 'OK', 200
-
 # Запуск бота
 async def main():
     await dp.start_polling(bot)
 
-# Функция для запуска Flask в отдельном потоке
-def run_flask():
-    app.run(host='0.0.0.0', port=5000)
-
 if __name__ == "__main__":
-    # Запускаем Flask в отдельном потоке
-    thread = Thread(target=run_flask)
-    thread.start()
-
-    # Запускаем бота
     asyncio.run(main())
