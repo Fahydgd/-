@@ -30,12 +30,12 @@ async def on_webhook(request):
     return web.Response()
 
 # Обработка команды /start
-@dp.message_handler(commands=['start'])
+@dp.message(commands=['start'])
 async def process_start_command(message: types.Message):
     await message.answer("Привет! Я — бот Сплетник! 🔥\nЗдесь можно делиться сплетнями анонимно!")
 
 # Обработка текстовых сообщений (сплетни)
-@dp.message_handler(content_types=types.ContentType.TEXT)
+@dp.message()
 async def handle_message(message: types.Message):
     gossip = message.text.strip()
     if gossip:
