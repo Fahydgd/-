@@ -1,7 +1,7 @@
 import logging
 import os
 from aiogram import Bot, Dispatcher, types
-from aiogram.utils.executor import start_webhook
+from aiogram.types import ParseMode
 from aiohttp import web
 
 # Токен бота и ID канала
@@ -13,7 +13,7 @@ logging.basicConfig(level=logging.INFO)
 
 # Инициализация бота и диспетчера
 bot = Bot(token=BOT_TOKEN)
-dp = Dispatcher(bot)
+dp = Dispatcher()
 
 # Вебхук URL
 WEBHOOK_HOST = 'https://anonimki.onrender.com'  # URL вашего Render приложения
@@ -72,14 +72,7 @@ def main():
     app.router.add_post(f'/{BOT_TOKEN}', on_webhook)
 
     # Настроить webhook
-    start_webhook(
-        dispatcher=dp,
-        webhook_path=WEBHOOK_PATH,
-        on_start=setup,
-        app=app,
-        host='0.0.0.0',
-        port=int(os.getenv('PORT', 5000))  # Порт из переменной окружения или 5000 по умолчанию
-    )
+    web.run_app(app, host='0.0.0.0', port=int(os.getenv('PORT', 5000)))
 
 if __name__ == '__main__':
     main()
