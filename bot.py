@@ -2,6 +2,7 @@ import logging
 import asyncio
 import random
 import time
+import os
 from aiogram import Bot, Dispatcher, types, F
 from aiogram.filters import Command
 
@@ -88,4 +89,8 @@ async def main():
     await dp.start_polling(bot)
 
 if __name__ == "__main__":
+    # Для использования порта в Render
+    port = int(os.environ.get("PORT", 8080))  # Получаем порт из переменной окружения
+    logging.info(f"Бот запущен на порту {port}")
+    
     asyncio.run(main())
