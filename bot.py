@@ -1,6 +1,7 @@
 import logging
 import os
 from aiogram import Bot, Dispatcher, types
+from aiogram.filters import Command
 from aiohttp import web
 
 # Токен бота и ID канала
@@ -30,7 +31,7 @@ async def on_webhook(request):
     return web.Response()
 
 # Обработка команды /start
-@dp.message(commands=['start'])
+@dp.message(Command("start"))
 async def process_start_command(message: types.Message):
     await message.answer("Привет! Я — бот Сплетник! 🔥\nЗдесь можно делиться сплетнями анонимно!")
 
