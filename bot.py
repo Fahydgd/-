@@ -1,7 +1,6 @@
 import logging
 import os
 from aiogram import Bot, Dispatcher, types
-from aiogram.types import ParseMode
 from aiohttp import web
 
 # Токен бота и ID канала
