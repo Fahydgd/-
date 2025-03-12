@@ -5,7 +5,7 @@ from aiogram.filters import Command
 from aiohttp import web
 
 # Токен бота и ID канала
-BOT_TOKEN = os.getenv("BOT_TOKEN")  # Замените на свой токен или используйте переменную окружения
+BOT_TOKEN = os.getenv("7385634728:AAG-twcqVUOFRdqa38G7EAZQlbhN2mO3E8E")  # Замените на свой токен или используйте переменную окружения
 CHANNEL_ID = "-1002332689318"  # Замените на ваш ID канала
 
 # Логирование
