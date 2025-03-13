@@ -5,7 +5,7 @@ from aiogram.filters import Command
 from aiohttp import web
 
 # Токен бота и ID канала
-BOT_TOKEN = os.getenv("7385634728:AAG-twcqVUOFRdqa38G7EAZQlbhN2mO3E8E")  # Замените на свой токен или используйте переменную окружения
+BOT_TOKEN = os.getenv("BOT_TOKEN")  # Используем переменную окружения для токена
 CHANNEL_ID = "-1002332689318"  # Замените на ваш ID канала
 
 # Логирование
@@ -38,6 +38,10 @@ start_messages = [
     "Анонимность гарантирована! 🔥\nЧто за сплетню ты принес сегодня?",
 ]
 
+@dp.message(Command("start"))
+async def send_start_message(message: types.Message):
+    await message.answer(start_messages[0])
+
 # Обработка текстовых сообщений (сплетни)
 @dp.message()
 async def handle_message(message: types.Message):
@@ -60,23 +64,8 @@ async def handle_message(message: types.Message):
             logging.error(f"Ошибка при отправке в канал: {e}")
             await message.answer("Что-то пошло не так. Попробуйте снова.")
 
-# Пересылка сообщений в канал
-@dp.message()
-async def forward_message(message: types.Message):
-    logging.info(f"📩 Получено сообщение: {message.text}")
-    try:
-        await bot.send_message(
-            chat_id=CHANNEL_ID,
-            text=f"🔥 *Новая сплетня от анонима:*\n\n{message.text}",
-            parse_mode="Markdown"
-        )
-        await message.answer("Сплетня отправлена в канал! 🔥")
-    except Exception as e:
-        logging.error(f"❌ Ошибка при отправке в канал: {e}")
-        await message.answer("Ошибка при отправке в канал. Попробуйте снова.")
-
 # Обработка медиафайлов
-@dp.message(lambda message: message.content_type == ContentType.PHOTO)
+@dp.message(lambda message: message.content_type == types.ContentType.PHOTO)
 async def handle_photo(message: types.Message):
     try:
         media = message.photo[-1].file_id  # Берем фото с лучшим качеством
@@ -87,7 +76,7 @@ async def handle_photo(message: types.Message):
         logging.error(f"❌ Ошибка при отправке фото: {e}")
         await message.answer("Ошибка при отправке фото. Попробуйте снова.")
 
-@dp.message(lambda message: message.content_type == ContentType.VIDEO)
+@dp.message(lambda message: message.content_type == types.ContentType.VIDEO)
 async def handle_video(message: types.Message):
     try:
         media = message.video.file_id  # Берем видео
@@ -98,7 +87,7 @@ async def handle_video(message: types.Message):
         logging.error(f"❌ Ошибка при отправке видео: {e}")
         await message.answer("Ошибка при отправке видео. Попробуйте снова.")
 
-@dp.message(lambda message: message.content_type == ContentType.VOICE)
+@dp.message(lambda message: message.content_type == types.ContentType.VOICE)
 async def handle_voice(message: types.Message):
     try:
         media = message.voice.file_id  # Берем голосовое сообщение
@@ -108,9 +97,6 @@ async def handle_voice(message: types.Message):
     except Exception as e:
         logging.error(f"❌ Ошибка при отправке голосового сообщения: {e}")
         await message.answer("Ошибка при отправке голосового сообщения. Попробуйте снова.")
-
-from aiogram.filters import Command
-from aiohttp import web
 
 # Запуск вебхука
 async def on_start(request):
@@ -131,3 +117,4 @@ def main():
 
 if __name__ == '__main__':
     main()
+
