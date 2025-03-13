@@ -4,6 +4,7 @@ import random
 import asyncio
 from aiogram import Bot, Dispatcher, types
 from aiogram.filters import Command
+from aiogram.types import ContentType
 from aiohttp import web
 
 # Токен бота и ID канала
@@ -47,7 +48,7 @@ async def forward_message(message: types.Message):
         await message.answer("Ошибка при отправке в канал. Попробуйте снова.")
 
 # Обработка медиафайлов
-@dp.message(ContentType.PHOTO)
+@dp.message(lambda message: message.content_type == ContentType.PHOTO)
 async def handle_photo(message: types.Message):
     try:
         media = message.photo[-1].file_id  # Берем фото с лучшим качеством
@@ -58,7 +59,7 @@ async def handle_photo(message: types.Message):
         logging.error(f"❌ Ошибка при отправке фото: {e}")
         await message.answer("Ошибка при отправке фото. Попробуйте снова.")
 
-@dp.message(ContentType.VIDEO)
+@dp.message(lambda message: message.content_type == ContentType.VIDEO)
 async def handle_video(message: types.Message):
     try:
         media = message.video.file_id  # Берем видео
@@ -69,7 +70,7 @@ async def handle_video(message: types.Message):
         logging.error(f"❌ Ошибка при отправке видео: {e}")
         await message.answer("Ошибка при отправке видео. Попробуйте снова.")
 
-@dp.message(ContentType.VOICE)
+@dp.message(lambda message: message.content_type == ContentType.VOICE)
 async def handle_voice(message: types.Message):
     try:
         media = message.voice.file_id  # Берем голосовое сообщение
