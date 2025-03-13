@@ -91,7 +91,7 @@ async def handle_webhook(request):
 
 # Установка вебхука
 async def on_startup():
-    await bot.set_webhook(f"https://yourapp.com/{BOT_TOKEN}")
+    await bot.set_webhook(f"https://anonimki.onrender.com/{BOT_TOKEN}")
     logging.info("✅ Вебхук установлен")
 
 # Остановка бота
