@@ -2,7 +2,7 @@ import logging
 import os
 import asyncio
 from aiogram import Bot, Dispatcher, types
-from aiogram.filters import Command
+from aiogram.filters import Command, ContentType
 from aiohttp import web
 import random
 
@@ -40,24 +40,24 @@ async def start_command(message: types.Message):
     logging.info(f"✅ Получена команда /start от {message.from_user.id}")
     await message.answer(random.choice(start_messages))
 
-# Обработка картинок, видео и видеокружков
-@dp.message(content_types=types.ContentType.PHOTO)
+# Обработка картинок
+@dp.message(ContentType.PHOTO)
 async def handle_photo(message: types.Message):
     logging.info(f"📸 Получена фотография от {message.from_user.id}")
     try:
-        # Пересылаем фото в канал
+        # Пересылаем фотографию в канал
         await bot.send_photo(
             chat_id=CHANNEL_ID,
-            photo=message.photo[-1].file_id,  # Самое большое фото
-            caption=f"🔥 *Новая сплетня от анонима с фото:*",
-            parse_mode="Markdown"
+            photo=message.photo[-1].file_id,  # Выбираем наибольшее изображение
+            caption=f"🔥 *Новая сплетня с фото от анонима:*"
         )
         await message.answer("Фото отправлено в канал! 🔥")
     except Exception as e:
-        logging.error(f"❌ Ошибка при отправке фото: {e}")
-        await message.answer("Ошибка при отправке фото. Попробуйте снова.")
+        logging.error(f"❌ Ошибка при отправке в канал: {e}")
+        await message.answer("Ошибка при отправке фото в канал. Попробуйте снова.")
 
-@dp.message(content_types=types.ContentType.VIDEO)
+# Обработка видео
+@dp.message(ContentType.VIDEO)
 async def handle_video(message: types.Message):
     logging.info(f"🎥 Получено видео от {message.from_user.id}")
     try:
@@ -65,34 +65,33 @@ async def handle_video(message: types.Message):
         await bot.send_video(
             chat_id=CHANNEL_ID,
             video=message.video.file_id,
-            caption=f"🔥 *Новая сплетня от анонима с видео:*",
-            parse_mode="Markdown"
+            caption=f"🔥 *Новая сплетня с видео от анонима:*"
         )
         await message.answer("Видео отправлено в канал! 🔥")
     except Exception as e:
-        logging.error(f"❌ Ошибка при отправке видео: {e}")
-        await message.answer("Ошибка при отправке видео. Попробуйте снова.")
+        logging.error(f"❌ Ошибка при отправке видео в канал: {e}")
+        await message.answer("Ошибка при отправке видео в канал. Попробуйте снова.")
 
-@dp.message(content_types=types.ContentType.VIDEO_NOTE)
+# Обработка видеокружков
+@dp.message(ContentType.VIDEO_NOTE)
 async def handle_video_note(message: types.Message):
-    logging.info(f"🎬 Получено видео заметка от {message.from_user.id}")
+    logging.info(f"🎥 Получено видео-кружок от {message.from_user.id}")
     try:
-        # Пересылаем видеозаметку в канал
+        # Пересылаем видеокружок в канал
         await bot.send_video_note(
             chat_id=CHANNEL_ID,
             video_note=message.video_note.file_id,
-            caption=f"🔥 *Новая сплетня от анонима с видеозаметкой:*",
-            parse_mode="Markdown"
+            caption=f"🔥 *Новая сплетня с видеокружком от анонима:*"
         )
-        await message.answer("Видеозаметка отправлена в канал! 🔥")
+        await message.answer("Видеокружок отправлен в канал! 🔥")
     except Exception as e:
-        logging.error(f"❌ Ошибка при отправке видеозаметки: {e}")
-        await message.answer("Ошибка при отправке видеозаметки. Попробуйте снова.")
+        logging.error(f"❌ Ошибка при отправке видеокружка в канал: {e}")
+        await message.answer("Ошибка при отправке видеокружка в канал. Попробуйте снова.")
 
-# Пересылка текстовых сообщений в канал
-@dp.message(content_types=types.ContentType.TEXT)
+# Обработка текста (сплетни)
+@dp.message()
 async def forward_message(message: types.Message):
-    logging.info(f"📩 Получено текстовое сообщение: {message.text}")
+    logging.info(f"📩 Получено сообщение: {message.text}")
     try:
         await bot.send_message(
             chat_id=CHANNEL_ID,
@@ -134,7 +133,7 @@ async def main():
     await site.start()
 
     logging.info("🚀 Бот запущен и ждет обновлений!")
-
+    
     try:
         while True:
             await asyncio.sleep(3600)  # Бесконечный цикл ожидания
