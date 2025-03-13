@@ -9,7 +9,7 @@ from aiohttp import web
 logging.basicConfig(level=logging.INFO)
 
 # Токен бота и ID канала
-BOT_TOKEN = os.getenv("7385634728:AAG-twcqVUOFRdqa38G7EAZQlbhN2mO3E8E")  # Используй переменную окружения!
+BOT_TOKEN = os.getenv("BOT_TOKEN")  # Используй переменную окружения!
 if not BOT_TOKEN:
     logging.critical("❌ Токен бота не найден! Укажите его в переменных окружения.")
     exit(1)
