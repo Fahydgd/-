@@ -2,11 +2,12 @@ import logging
 import os
 from aiogram import Bot, Dispatcher, types
 from aiogram.filters import Command
+from aiogram.types import Message
 from aiohttp import web
 
-# Токен бота и ID канала
-BOT_TOKEN = os.getenv("7385634728:AAG-twcqVUOFRdqa38G7EAZQlbhN2mO3E8E")  # Замените на свой токен или используйте переменную окружения
-CHANNEL_ID = "-1002332689318"  # Замените на ваш ID канала
+# Получаем токен и ID канала
+BOT_TOKEN = os.getenv("BOT_TOKEN")  # Используй переменную окружения!
+CHANNEL_ID = "-1002332689318"  # Замени на ID своего канала
 
 # Логирование
 logging.basicConfig(level=logging.INFO)
@@ -16,63 +17,59 @@ bot = Bot(token=BOT_TOKEN)
 dp = Dispatcher()
 
 # Вебхук URL
-WEBHOOK_HOST = 'https://anonimki.onrender.com'  # URL вашего Render приложения
-WEBHOOK_PATH = f'/{BOT_TOKEN}'
+WEBHOOK_HOST = "https://anonimki.onrender.com"
+WEBHOOK_PATH = f"/{BOT_TOKEN}"
 WEBHOOK_URL = WEBHOOK_HOST + WEBHOOK_PATH
-
-# Устанавливаем вебхук
-async def on_start_webhook(request):
-    return web.Response(text="Webhook is set")
-
-async def on_webhook(request):
-    json_str = await request.json()
-    update = types.Update(**json_str)
-    await dp.process_update(update)
-    return web.Response()
 
 # Обработка команды /start
 @dp.message(Command("start"))
-async def process_start_command(message: types.Message):
+async def start_command(message: Message):
     await message.answer("Привет! Я — бот Сплетник! 🔥\nЗдесь можно делиться сплетнями анонимно!")
 
-# Обработка текстовых сообщений (сплетни)
+# Пересылка сообщений в канал
 @dp.message()
-async def handle_message(message: types.Message):
-    gossip = message.text.strip()
-    if gossip:
-        try:
-            await bot.send_message(CHANNEL_ID, f"Новая сплетня от анонима: {gossip}")
+async def forward_message(message: Message):
+    try:
+        forwarded_message = await bot.send_message(
+            chat_id=CHANNEL_ID,
+            text=f"🔥 *Новая сплетня от анонима:*\n\n{message.text}",
+            parse_mode="Markdown"
+        )
 
-            # Создаем опрос
-            await bot.send_poll(
-                chat_id=CHANNEL_ID,
-                question="Оцените сплетню:",
-                options=["✅ Правда", "❌ Ложь"],
-                is_anonymous=True,
-                type="regular"
-            )
+        # Добавляем кнопки голосования
+        await bot.send_poll(
+            chat_id=CHANNEL_ID,
+            question="Оцените сплетню:",
+            options=["✅ Правда", "❌ Ложь"],
+            is_anonymous=True
+        )
 
-            await message.answer("Сплетня отправлена! 🔥")
-        except Exception as e:
-            logging.error(f"Ошибка при отправке в канал: {e}")
-            await message.answer("Что-то пошло не так. Попробуйте снова.")
+        await message.answer("Сплетня отправлена в канал! 🔥")
 
-# Запуск вебхука
-async def on_start(request):
-    return web.Response(text="Webhook setup successfully.")
+    except Exception as e:
+        logging.error(f"Ошибка при отправке сообщения: {e}")
+        await message.answer("Ошибка при отправке в канал. Попробуйте снова.")
 
-async def setup():
-    # Настройка webhook
+# Обработка вебхука
+async def handle_webhook(request):
+    json_str = await request.json()
+    update = types.Update(**json_str)
+    await dp._update_handlers.notify(update)
+    return web.Response()
+
+# Настройка вебхука
+async def on_startup():
     await bot.set_webhook(WEBHOOK_URL)
 
-# Основная функция для работы с aiohttp
-def main():
+# Запуск бота
+async def main():
     app = web.Application()
-    app.router.add_get('/', on_start_webhook)
-    app.router.add_post(f'/{BOT_TOKEN}', on_webhook)
+    app.router.add_post(WEBHOOK_PATH, handle_webhook)
 
-    # Настроить webhook
-    web.run_app(app, host='0.0.0.0', port=int(os.getenv('PORT', 5000)))
+    await on_startup()
+    web.run_app(app, host="0.0.0.0", port=int(os.getenv("PORT", 5000)))
 
-if __name__ == '__main__':
-    main()
+if __name__ == "__main__":
+    import asyncio
+    asyncio.run(main())
+
