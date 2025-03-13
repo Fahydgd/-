@@ -3,7 +3,7 @@ import os
 import random
 import asyncio
 from aiogram import Bot, Dispatcher, types
-from aiogram.filters import Command, ContentType
+from aiogram.filters import Command
 from aiohttp import web
 
 # Токен бота и ID канала
@@ -90,9 +90,8 @@ async def handle_webhook(request):
 
 # Установка вебхука
 async def on_startup():
-    webhook_url = f"https://yourapp.com/{BOT_TOKEN}"
-    await bot.set_webhook(webhook_url)
-    logging.info(f"✅ Вебхук установлен: {webhook_url}")
+    await bot.set_webhook(f"https://yourapp.com/{BOT_TOKEN}")
+    logging.info("✅ Вебхук установлен")
 
 # Остановка бота
 async def on_shutdown():
@@ -107,16 +106,16 @@ async def main():
     await on_startup()
     runner = web.AppRunner(app)
     await runner.setup()
-    site = web.TCPSite(runner, "0.0.0.0", int(os.getenv("PORT", 5000)))
+    site = web.TCPSite(runner, "0.0.0.0", 5000)
     await site.start()
 
-    logging.info("🚀 Бот запущен и ждет обновлений!")
+    logging.info("🚀 Бот запущен и ожидает обновлений")
 
     try:
         while True:
             await asyncio.sleep(3600)  # Поддерживаем бот в активном состоянии
     except (KeyboardInterrupt, SystemExit):
-        await on_shutdown()
+        logging.info("Бот остановлен")
 
 if __name__ == "__main__":
     asyncio.run(main())
