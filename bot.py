@@ -55,37 +55,49 @@ async def forward_message(message: types.Message):
 
 
 # Обработка медиафайлов
-@dp.message(content_types=[ContentType.PHOTO, ContentType.VIDEO, ContentType.VOICE, ContentType.STICKER])
-async def handle_media(message: types.Message):
+@dp.message(ContentType.PHOTO)
+async def handle_photo(message: types.Message):
     try:
-        if message.photo:
-            # Фото
-            media = message.photo[-1].file_id  # Берем фото с лучшим качеством
-            caption = "Фото от анонима!"
-            await bot.send_photo(chat_id=CHANNEL_ID, photo=media, caption=caption)
-
-        elif message.video:
-            # Видео
-            media = message.video.file_id  # Берем видео
-            caption = "Видео от анонима!"
-            await bot.send_video(chat_id=CHANNEL_ID, video=media, caption=caption)
-
-        elif message.voice:
-            # Голосовое сообщение
-            media = message.voice.file_id  # Берем голосовое сообщение
-            caption = "Голосовое сообщение от анонима!"
-            await bot.send_voice(chat_id=CHANNEL_ID, voice=media, caption=caption)
-
-        elif message.sticker:
-            # Стикер
-            media = message.sticker.file_id  # Берем стикер
-            caption = "Стикер от анонима!"
-            await bot.send_sticker(chat_id=CHANNEL_ID, sticker=media)
-
+        media = message.photo[-1].file_id  # Берем фото с лучшим качеством
+        caption = "Фото от анонима!"
+        await bot.send_photo(chat_id=CHANNEL_ID, photo=media, caption=caption)
         await message.answer("Медиа отправлено в канал! 🎬")
     except Exception as e:
-        logging.error(f"❌ Ошибка при отправке медиа: {e}")
-        await message.answer("Ошибка при отправке медиа. Попробуйте снова.")
+        logging.error(f"❌ Ошибка при отправке фото: {e}")
+        await message.answer("Ошибка при отправке фото. Попробуйте снова.")
+
+@dp.message(ContentType.VIDEO)
+async def handle_video(message: types.Message):
+    try:
+        media = message.video.file_id  # Берем видео
+        caption = "Видео от анонима!"
+        await bot.send_video(chat_id=CHANNEL_ID, video=media, caption=caption)
+        await message.answer("Медиа отправлено в канал! 🎬")
+    except Exception as e:
+        logging.error(f"❌ Ошибка при отправке видео: {e}")
+        await message.answer("Ошибка при отправке видео. Попробуйте снова.")
+
+@dp.message(ContentType.VOICE)
+async def handle_voice(message: types.Message):
+    try:
+        media = message.voice.file_id  # Берем голосовое сообщение
+        caption = "Голосовое сообщение от анонима!"
+        await bot.send_voice(chat_id=CHANNEL_ID, voice=media, caption=caption)
+        await message.answer("Медиа отправлено в канал! 🎬")
+    except Exception as e:
+        logging.error(f"❌ Ошибка при отправке голосового сообщения: {e}")
+        await message.answer("Ошибка при отправке голосового сообщения. Попробуйте снова.")
+
+@dp.message(ContentType.STICKER)
+async def handle_sticker(message: types.Message):
+    try:
+        media = message.sticker.file_id  # Берем стикер
+        caption = "Стикер от анонима!"
+        await bot.send_sticker(chat_id=CHANNEL_ID, sticker=media)
+        await message.answer("Медиа отправлено в канал! 🎬")
+    except Exception as e:
+        logging.error(f"❌ Ошибка при отправке стикера: {e}")
+        await message.answer("Ошибка при отправке стикера. Попробуйте снова.")
 
 
 # Обработка вебхука
