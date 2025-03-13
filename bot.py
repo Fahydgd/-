@@ -1,5 +1,7 @@
 import logging
 import os
+import random
+import asyncio  # Добавляем импорт asyncio
 from aiogram import Bot, Dispatcher, types
 from aiogram.filters import Command
 from aiogram.types import ContentType
@@ -17,9 +19,12 @@ CHANNEL_ID = "-1002332689318"  # Замени на свой ID канала
 bot = Bot(token=BOT_TOKEN)
 dp = Dispatcher()
 
-# Обработчик команды /start
-import random
+# URL вебхука
+WEBHOOK_HOST = "https://anonimki.onrender.com"
+WEBHOOK_PATH = f"/{BOT_TOKEN}"
+WEBHOOK_URL = WEBHOOK_HOST + WEBHOOK_PATH
 
+# Обработчик команды /start
 start_messages = [
     "Привет! Я — бот Сплетник! 🔥\nЗдесь можно делиться сплетнями анонимно!",
     "Добро пожаловать в мир слухов и тайн! 🤫\nРасскажи, что у тебя на уме!",
