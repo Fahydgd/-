@@ -80,24 +80,43 @@ async def handle_voice(message: types.Message):
         logging.error(f"❌ Ошибка при отправке голосового сообщения: {e}")
         await message.answer("Ошибка при отправке голосового сообщения. Попробуйте снова.")
 
+# Обработка вебхука
+async def handle_webhook(request):
+    json_str = await request.json()
+    update = types.Update(**json_str)
+    logging.info(f"🔔 Получено обновление: {update}")
+    await dp.feed_update(bot, update)
+    return web.Response()
+
+# Установка вебхука
+async def on_startup():
+    webhook_url = f"https://yourapp.com/{BOT_TOKEN}"
+    await bot.set_webhook(webhook_url)
+    logging.info(f"✅ Вебхук установлен: {webhook_url}")
+
+# Остановка бота
+async def on_shutdown():
+    await bot.session.close()
+    logging.info("🛑 Бот остановлен")
+
 # Запуск бота
 async def main():
     app = web.Application()
     app.router.add_post(f"/{BOT_TOKEN}", handle_webhook)
 
-    await bot.set_webhook(f"https://yourapp.com/{BOT_TOKEN}")
-    logging.info("Бот запущен и ожидает обновлений")
-
+    await on_startup()
     runner = web.AppRunner(app)
     await runner.setup()
-    site = web.TCPSite(runner, "0.0.0.0", 5000)
+    site = web.TCPSite(runner, "0.0.0.0", int(os.getenv("PORT", 5000)))
     await site.start()
+
+    logging.info("🚀 Бот запущен и ждет обновлений!")
 
     try:
         while True:
             await asyncio.sleep(3600)  # Поддерживаем бот в активном состоянии
     except (KeyboardInterrupt, SystemExit):
-        logging.info("Бот остановлен")
+        await on_shutdown()
 
 if __name__ == "__main__":
     asyncio.run(main())
