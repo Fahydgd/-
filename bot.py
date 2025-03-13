@@ -1,13 +1,9 @@
 import logging
 import os
-import asyncio
 from aiogram import Bot, Dispatcher, types
-from aiogram.filters import Command, ContentType
+from aiogram.filters import Command
+from aiogram.types import ContentType
 from aiohttp import web
-import random
-
-# Логирование
-logging.basicConfig(level=logging.INFO)
 
 # Токен бота и ID канала
 BOT_TOKEN = os.getenv("BOT_TOKEN")  # Используй переменную окружения!
@@ -21,74 +17,23 @@ CHANNEL_ID = "-1002332689318"  # Замени на свой ID канала
 bot = Bot(token=BOT_TOKEN)
 dp = Dispatcher()
 
-# URL вебхука
-WEBHOOK_HOST = "https://anonimki.onrender.com"
-WEBHOOK_PATH = f"/{BOT_TOKEN}"
-WEBHOOK_URL = WEBHOOK_HOST + WEBHOOK_PATH
+# Обработчик команды /start
+import random
 
-# Разнообразные приветственные сообщения
 start_messages = [
     "Привет! Я — бот Сплетник! 🔥\nЗдесь можно делиться сплетнями анонимно!",
     "Добро пожаловать в мир слухов и тайн! 🤫\nРасскажи, что у тебя на уме!",
     "Хочешь поделиться чем-то пикантным? 😏\nТы в нужном месте!",
-    "Анонимность гарантирована! 🔥\nЧто за сплетню ты принес сегодня?"
+    "Анонимность гарантирована! 🔥\nЧто за сплетню ты принес сегодня?",
 ]
 
-# Обработчик команды /start
 @dp.message(Command("start"))
 async def start_command(message: types.Message):
     logging.info(f"✅ Получена команда /start от {message.from_user.id}")
     await message.answer(random.choice(start_messages))
 
-# Обработка картинок
-@dp.message(ContentType.PHOTO)
-async def handle_photo(message: types.Message):
-    logging.info(f"📸 Получена фотография от {message.from_user.id}")
-    try:
-        # Пересылаем фотографию в канал
-        await bot.send_photo(
-            chat_id=CHANNEL_ID,
-            photo=message.photo[-1].file_id,  # Выбираем наибольшее изображение
-            caption=f"🔥 *Новая сплетня с фото от анонима:*"
-        )
-        await message.answer("Фото отправлено в канал! 🔥")
-    except Exception as e:
-        logging.error(f"❌ Ошибка при отправке в канал: {e}")
-        await message.answer("Ошибка при отправке фото в канал. Попробуйте снова.")
 
-# Обработка видео
-@dp.message(ContentType.VIDEO)
-async def handle_video(message: types.Message):
-    logging.info(f"🎥 Получено видео от {message.from_user.id}")
-    try:
-        # Пересылаем видео в канал
-        await bot.send_video(
-            chat_id=CHANNEL_ID,
-            video=message.video.file_id,
-            caption=f"🔥 *Новая сплетня с видео от анонима:*"
-        )
-        await message.answer("Видео отправлено в канал! 🔥")
-    except Exception as e:
-        logging.error(f"❌ Ошибка при отправке видео в канал: {e}")
-        await message.answer("Ошибка при отправке видео в канал. Попробуйте снова.")
-
-# Обработка видеокружков
-@dp.message(ContentType.VIDEO_NOTE)
-async def handle_video_note(message: types.Message):
-    logging.info(f"🎥 Получено видео-кружок от {message.from_user.id}")
-    try:
-        # Пересылаем видеокружок в канал
-        await bot.send_video_note(
-            chat_id=CHANNEL_ID,
-            video_note=message.video_note.file_id,
-            caption=f"🔥 *Новая сплетня с видеокружком от анонима:*"
-        )
-        await message.answer("Видеокружок отправлен в канал! 🔥")
-    except Exception as e:
-        logging.error(f"❌ Ошибка при отправке видеокружка в канал: {e}")
-        await message.answer("Ошибка при отправке видеокружка в канал. Попробуйте снова.")
-
-# Обработка текста (сплетни)
+# Пересылка сообщений в канал
 @dp.message()
 async def forward_message(message: types.Message):
     logging.info(f"📩 Получено сообщение: {message.text}")
