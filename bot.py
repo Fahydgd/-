@@ -1,8 +1,8 @@
 import logging
 import os
+import asyncio
 from aiogram import Bot, Dispatcher, types
 from aiogram.filters import Command
-from aiogram.types import Message
 from aiohttp import web
 
 # Получаем токен и ID канала
@@ -23,12 +23,12 @@ WEBHOOK_URL = WEBHOOK_HOST + WEBHOOK_PATH
 
 # Обработка команды /start
 @dp.message(Command("start"))
-async def start_command(message: Message):
+async def start_command(message: types.Message):
     await message.answer("Привет! Я — бот Сплетник! 🔥\nЗдесь можно делиться сплетнями анонимно!")
 
 # Пересылка сообщений в канал
 @dp.message()
-async def forward_message(message: Message):
+async def forward_message(message: types.Message):
     try:
         forwarded_message = await bot.send_message(
             chat_id=CHANNEL_ID,
@@ -61,15 +61,26 @@ async def handle_webhook(request):
 async def on_startup():
     await bot.set_webhook(WEBHOOK_URL)
 
+# Закрытие бота (чтобы не было ошибок `Unclosed client session`)
+async def on_shutdown():
+    await bot.session.close()
+
 # Запуск бота
 async def main():
     app = web.Application()
     app.router.add_post(WEBHOOK_PATH, handle_webhook)
 
     await on_startup()
-    web.run_app(app, host="0.0.0.0", port=int(os.getenv("PORT", 5000)))
+    runner = web.AppRunner(app)
+    await runner.setup()
+    site = web.TCPSite(runner, "0.0.0.0", int(os.getenv("PORT", 5000)))
+    await site.start()
+
+    try:
+        while True:
+            await asyncio.sleep(3600)  # Бесконечный цикл ожидания
+    except (KeyboardInterrupt, SystemExit):
+        await on_shutdown()
 
 if __name__ == "__main__":
-    import asyncio
     asyncio.run(main())
-
